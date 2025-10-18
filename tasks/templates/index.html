@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Manager API Demo</title>
+</head>
+<body>
+<h2>📝 Task Manager</h2>
+
+<input id="newTask" type="text" placeholder="New task..." />
+<button onclick="addTask()">Add</button>
+
+<ul id="taskList"></ul>
+
+<script>
+function loadTasks() {
+    fetch('/api/tasks/')
+        .then(res => res.json())
+        .then(tasks => {
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+            tasks.forEach(t => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    ${t.completed ? '✅' : '⬜'} ${t.title}
+                    <button onclick="toggleTask(${t.id}, ${!t.completed})">Toggle</button>
+                    <button onclick="deleteTask(${t.id})">Delete</button>
+                `;
+                list.appendChild(li);
+            });
+        });
+}
+
+function addTask() {
+    const title = document.getElementById('newTask').value;
+    fetch('/api/tasks/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ title: title, completed: false })
+    }).then(loadTasks);
+}
+
+function toggleTask(id, newStatus) {
+    fetch(`/api/tasks/${id}/`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ completed: newStatus, title: document.getElementById('taskList').children[id-1].innerText })
+    }).then(loadTasks);
+}
+
+function deleteTask(id) {
+    fetch(`/api/tasks/${id}/`, { method: 'DELETE' })
+        .then(loadTasks);
+}
+
+loadTasks();
+</script>
+</body>
+</html>

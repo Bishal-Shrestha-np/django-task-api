@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+**/__pycache__/
+venv/
+# Django
+*.log
+db.sqlite3
+
+
+
+
+
+
